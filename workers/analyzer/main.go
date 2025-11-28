@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const HATCHET_HOST = "app.hatchet-tools.com"
+const HATCHET_HOST = "104ad.cloud.onhatchet.run"
 const HATCHET_PORT = 443
 
 func main() {
@@ -37,8 +37,8 @@ func main() {
 		logger.WithError(err).Fatal("Failed to create Hatchet client")
 	}
 
-	// Initialize PDF Analayzer
-	pdfAnalyzer := NewPDFAnalzyer(logger)
+	// Initialize PDF Analayzer (will be created in step function)
+	// pdfAnalyzer := NewPDFAnalzyer(logger)
 
 	// Create worker instance, process up to 10 jobs concurrently
 	w, err := worker.NewWorker(
@@ -49,17 +49,16 @@ func main() {
 		logger.WithError(err).Fatal("Failed to create worker")
 	}
 
-	// Register the analyzer workflow, retry up to 3x on failure
+	// Register the analyzer workflow, trigger the worker on upload, retry up to 3x on failure
 	err = w.RegisterWorkflow(
 		&worker.WorkflowJob{
 			Name:        "analyze-document",
 			Description: "Analyzes PDF documents to determine processing strategy",
+			On: worker.Events("document:uploaded"),
 			Steps: []*worker.WorkflowStep{
 				{
 					Name: "analyze",
-					Function: func(ctx worker.HatchetContext) (result any, err error) {
-						return analyzeDocumentStep(ctx, pdfAnalyzer, logger)
-					},
+					Function: analyzeDocumentStep,
 					Retries: 3,
 				},
 			},
@@ -96,17 +95,13 @@ func main() {
 }
 
 // main step fn for document analysis
-func analyzeDocumentStep(
-	ctx worker.HatchetContext,
-	analyzer *PDFAnalyzer,
-	logger *logrus.Logger,
-) (any, error) {
-	// Get input data from Hatchet context
-	var input DocumentInput
-	if err := ctx.WorkflowInput(&input); err != nil {
-		logger.WithError(err).Error("Failed to parse workflow input")
-		return nil, fmt.Errorf("failed to parse workflow input: %w", err)
-	}
+// main step fn for document analysis
+func analyzeDocumentStep(ctx worker.HatchetContext, input *DocumentInput) (*AnalysisResult, error) {
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
+	logger.SetLevel(logrus.InfoLevel)
+
+	pdfAnalyzer := NewPDFAnalzyer(logger)
 
 	// call logger with fields to start processing
 	logger.WithFields(logrus.Fields{
@@ -116,7 +111,7 @@ func analyzeDocumentStep(
 	}).Info("Document analysis: PROCESSING")
 
 	// Perform document analysis
-	result, err := analyzer.AnalyzeDocument(input)
+	result, err := pdfAnalyzer.AnalyzeDocument(*input)
 	if err != nil {
 		logger.WithError(err).Error("Document analysis failed")
 		return nil, fmt.Errorf("document analysis failed: %w", err)
