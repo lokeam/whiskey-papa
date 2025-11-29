@@ -6,3 +6,51 @@
 {"data":{"status":"completed","message":"Task A finished successfully"},"step":"TaskA","timestamp":"2025-11-28T18:22:26-05:00","type":"STEP_COMPLETED"}
 {"data":{"status":"completed","message":"Task C finished successfully"},"step":"TaskC","timestamp":"2025-11-28T18:22:26-05:00","type":"STEP_COMPLETED"}
 {"data":{"status":"completed","message":"Task A finished successfully"},"step":"TaskA","timestamp":"2025-11-28T18:22:26-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"upload","timestamp":"2025-11-28T22:41:31-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","document_id":"","file_size":2457600,"uploaded_at":"2025-11-28T22:41:33-05:00"},"step":"upload","timestamp":"2025-11-28T22:41:33-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"validate","timestamp":"2025-11-28T22:41:35-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","valid":true,"file_type":"application/pdf","page_count":47},"step":"validate","timestamp":"2025-11-28T22:41:37-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"extract","timestamp":"2025-11-28T22:41:39-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","text_extracted":true,"image_count":12,"table_count":8},"step":"extract","timestamp":"2025-11-28T22:41:42-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"parse-text","timestamp":"2025-11-28T22:41:44-05:00","type":"STEP_STARTED"}
+{"data":{"document_id":"","file_path":""},"step":"parse-images","timestamp":"2025-11-28T22:41:44-05:00","type":"STEP_STARTED"}
+{"data":{"document_id":"","file_path":""},"step":"parse-tables","timestamp":"2025-11-28T22:41:44-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","word_count":15234,"language":"en","entities":["Acme Corporation","John Smith","New York","Q4 2024"]},"step":"parse-text","timestamp":"2025-11-28T22:41:47-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","tables":[{"columns":6,"name":"Revenue Summary","rows":24},{"columns":8,"name":"Employee Data","rows":156}]},"step":"parse-tables","timestamp":"2025-11-28T22:41:47-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","images":["chart_revenue.png","logo.png","diagram_architecture.png"]},"step":"parse-images","timestamp":"2025-11-28T22:41:48-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"transform","timestamp":"2025-11-28T22:41:50-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","normalized":true,"enriched":true,"records_created":342},"step":"transform","timestamp":"2025-11-28T22:41:52-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"store-s3","timestamp":"2025-11-28T22:41:54-05:00","type":"STEP_STARTED"}
+{"data":{"document_id":"","file_path":""},"step":"store-database","timestamp":"2025-11-28T22:41:54-05:00","type":"STEP_STARTED"}
+{"data":{"document_id":"","file_path":""},"step":"index-search","timestamp":"2025-11-28T22:41:54-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","location":"postgresql://documents/","record_id":"doc_"},"step":"store-database","timestamp":"2025-11-28T22:41:56-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","location":"elasticsearch://documents/","indexed":true},"step":"index-search","timestamp":"2025-11-28T22:41:56-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","location":"s3://documents-bucket/.pdf"},"step":"store-s3","timestamp":"2025-11-28T22:41:57-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"notify","timestamp":"2025-11-28T22:41:59-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","notified":["user@example.com","admin@example.com"],"notifications_sent":2},"step":"notify","timestamp":"2025-11-28T22:42:00-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"cleanup","timestamp":"2025-11-28T22:42:02-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","temp_files_removed":15,"cache_cleared":true},"step":"cleanup","timestamp":"2025-11-28T22:42:03-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"upload","timestamp":"2025-11-29T10:46:42-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","document_id":"","file_size":2457600,"uploaded_at":"2025-11-29T10:46:44-05:00"},"step":"upload","timestamp":"2025-11-29T10:46:44-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"validate","timestamp":"2025-11-29T10:46:44-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","valid":true,"file_type":"application/pdf","page_count":47},"step":"validate","timestamp":"2025-11-29T10:46:46-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"extract","timestamp":"2025-11-29T10:46:46-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","text_extracted":true,"image_count":12,"table_count":8},"step":"extract","timestamp":"2025-11-29T10:46:49-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"parse-text","timestamp":"2025-11-29T10:46:50-05:00","type":"STEP_STARTED"}
+{"data":{"document_id":"","file_path":""},"step":"parse-tables","timestamp":"2025-11-29T10:46:50-05:00","type":"STEP_STARTED"}
+{"data":{"document_id":"","file_path":""},"step":"parse-images","timestamp":"2025-11-29T10:46:50-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","word_count":15234,"language":"en","entities":["Acme Corporation","John Smith","New York","Q4 2024"]},"step":"parse-text","timestamp":"2025-11-29T10:46:53-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","tables":[{"columns":6,"name":"Revenue Summary","rows":24},{"columns":8,"name":"Employee Data","rows":156}]},"step":"parse-tables","timestamp":"2025-11-29T10:46:53-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","images":["chart_revenue.png","logo.png","diagram_architecture.png"]},"step":"parse-images","timestamp":"2025-11-29T10:46:54-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"transform","timestamp":"2025-11-29T10:46:54-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","normalized":true,"enriched":true,"records_created":342},"step":"transform","timestamp":"2025-11-29T10:46:56-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"store-s3","timestamp":"2025-11-29T10:46:56-05:00","type":"STEP_STARTED"}
+{"data":{"document_id":"","file_path":""},"step":"store-database","timestamp":"2025-11-29T10:46:56-05:00","type":"STEP_STARTED"}
+{"data":{"document_id":"","file_path":""},"step":"index-search","timestamp":"2025-11-29T10:46:56-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","location":"postgresql://documents/","record_id":"doc_"},"step":"store-database","timestamp":"2025-11-29T10:46:58-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","location":"elasticsearch://documents/","indexed":true},"step":"index-search","timestamp":"2025-11-29T10:46:58-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","location":"s3://documents-bucket/.pdf"},"step":"store-s3","timestamp":"2025-11-29T10:46:59-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"notify","timestamp":"2025-11-29T10:46:59-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","notified":["user@example.com","admin@example.com"],"notifications_sent":2},"step":"notify","timestamp":"2025-11-29T10:47:00-05:00","type":"STEP_COMPLETED"}
+{"data":{"document_id":"","file_path":""},"step":"cleanup","timestamp":"2025-11-29T10:47:00-05:00","type":"STEP_STARTED"}
+{"data":{"status":"completed","temp_files_removed":15,"cache_cleared":true},"step":"cleanup","timestamp":"2025-11-29T10:47:01-05:00","type":"STEP_COMPLETED"}
