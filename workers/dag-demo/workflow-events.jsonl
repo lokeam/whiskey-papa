@@ -1,0 +1,8 @@
+{"data":{"status":"completed","message":"Task finished successfully"},"step":"Step1","timestamp":"2025-11-28T18:22:24-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","message":"Task finished successfully"},"step":"Step1","timestamp":"2025-11-28T18:22:24-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","message":"Task B finished successfully"},"step":"TaskB","timestamp":"2025-11-28T18:22:24-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","message":"Task B finished successfully"},"step":"TaskB","timestamp":"2025-11-28T18:22:24-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","message":"Task C finished successfully"},"step":"TaskC","timestamp":"2025-11-28T18:22:26-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","message":"Task A finished successfully"},"step":"TaskA","timestamp":"2025-11-28T18:22:26-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","message":"Task C finished successfully"},"step":"TaskC","timestamp":"2025-11-28T18:22:26-05:00","type":"STEP_COMPLETED"}
+{"data":{"status":"completed","message":"Task A finished successfully"},"step":"TaskA","timestamp":"2025-11-28T18:22:26-05:00","type":"STEP_COMPLETED"}
