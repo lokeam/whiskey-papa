@@ -2,6 +2,7 @@
 import { Run } from "@/components/recentrunslist/RecentRunsList";
 import Link from "next/link";
 import WorkflowHistoryItem from "@/components/recentrunslist/WorkflowHistoryItem";
+import { EmptyStateCard } from "@/components/shared/EmptyStateCard";
 
 type ActiveWorkflowsProps = {
   runs: Run[];
@@ -9,7 +10,7 @@ type ActiveWorkflowsProps = {
 
 export default function ActiveWorkflows({ runs }: ActiveWorkflowsProps) {
   return (
-    <section className="col-span-full lg:col-span-2 mb-8">
+    <section className="col-span-full mb-8">
       {/* Header*/}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -21,31 +22,34 @@ export default function ActiveWorkflows({ runs }: ActiveWorkflowsProps) {
       </div>
 
       {/* List */}
-      <ul className="space-y-4">
-        {/* {runs.map((run) => (
-          <li key={run?.id}>
-            <div>{run?.workflowName}</div>
-            <div>simple steptimeline / progress representation</div>
-          </li>
-        ))} */}
-        <WorkflowHistoryItem
-          variant="active"
-          status="running"
-          title="Compliance Processing"
-          description="#comp-pl-185730"
-          triggeredAtLabel="5 mins ago"
-          durationLabel="5m 40s"
-        />
-        <WorkflowHistoryItem
-          variant="active"
-          status="running"
-          title="Media Transcoding"
-          description="#15078…"
-          triggeredAtLabel="12 min ago"
-          durationLabel="12m 43s"
-        />
-
-      </ul>
+      <div className="space-y-4">
+       {runs.length === 0 ? (
+          <EmptyStateCard
+            key="empty-active-workflows"
+            icon="ACTIVE_WORKFLOWS"
+            title="You have no active workflows"
+            description="Workflow runs will appear here once they are executed."
+          />
+          ) : (
+            <WorkflowHistoryItem
+              key="active-workflows"
+              variant="active"
+              status="running"
+              title="Compliance Processing"
+              description="#comp-pl-185730"
+              triggeredAtLabel="5 mins ago"
+              durationLabel="5m 40s"
+            />
+            // <WorkflowHistoryItem
+            //   variant="active"
+            //   status="running"
+            //   title="Media Transcoding"
+            //   description="#15078…"
+            //   triggeredAtLabel="12 min ago"
+            //   durationLabel="12m 43s"
+            // />
+        )}
+      </div>
     </section>
   )
 }

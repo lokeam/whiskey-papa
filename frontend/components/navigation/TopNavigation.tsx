@@ -19,7 +19,7 @@ export function TopNavigation({
   return (
     <header
       id="top-nav"
-      className="hidden items-center justify-between px-4 py-4 md:flex"
+      className="hidden items-center justify-between px-4 py-4 md:flex border-b border-border"
       {...props}
     >
       {/* Logo */}

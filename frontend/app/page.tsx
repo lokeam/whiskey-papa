@@ -6,8 +6,10 @@ import { PageMain } from "@/components/layout/page-main";
 import { PageGrid } from "@/components/layout/page-grid";
 
 // Custom componets
-import RecentRunsList from "@/components/recentrunslist/RecentRunsList";
+import PlatformHealth from "@/components/platformhealth/PlatformHealth";
 import ActiveWorkflows from "@/components/activeworkflows/ActiveWorkflows";
+import RecentRunsList from "@/components/recentrunslist/RecentRunsList";
+
 
 export default function Home() {
   return (
@@ -70,10 +72,8 @@ export default function Home() {
         </div>
       </main> */}
       <PageMain>
-        <PageHeadline>
-          <h1>Runs</h1>
-        </PageHeadline>
         <PageGrid>
+          <PlatformHealth runs={[]} />
           <ActiveWorkflows runs={[]} />
           <RecentRunsList runs={[]} />
 
