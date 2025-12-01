@@ -1,14 +1,98 @@
 
-import { Run } from "@/components/recentrunslist/RecentRunsList";
+
 import Link from "next/link";
 import WorkflowHistoryItem from "@/components/recentrunslist/WorkflowHistoryItem";
 import { EmptyStateCard } from "@/components/shared/EmptyStateCard";
 
+// Types
+import { WorkflowState } from "@/app/hooks/useWorkflowStream";
+
+// Hooks
+import { useElapsedTime } from '@/app/hooks/useElapsedTime';
+
+// ============================================================================
+// TODO: REFACTOR FOR PRODUCTION
+// ============================================================================
+// These transformation functions mix presentation logic with the component.
+// For production, move to a dedicated adapter layer:
+//
+// 1. Create: /lib/adapters/workflowAdapter.ts
+// 2. Export function: adaptWorkflowForUI(workflow: WorkflowState)
+// 3. Move: mapStatus, formatTimeAgo, formatDuration to adapter
+// 4. Component receives pre-formatted data
+//
+// Benefits:
+// - Separation of concerns (data transformation vs rendering)
+// - Testable in isolation
+// - Reusable across components (RecentRunsList will need same logic)
+// - Easier to mock for Storybook/tests
+//
+// Example refactor:
+//   const adaptedWorkflows = workflows.map(adaptWorkflowForUI);
+//   return <WorkflowHistoryItem {...adapted} />;
+// ============================================================================
+
 type ActiveWorkflowsProps = {
-  runs: Run[];
+  workflows: WorkflowState[];
 }
 
-export default function ActiveWorkflows({ runs }: ActiveWorkflowsProps) {
+// Helper: Map Hatchet status to component status
+const mapStatus = (status: string): 'running' | 'queued' | 'completed' | 'failed' | 'cancelled' => {
+  const statusMap: Record<string, 'running' | 'queued' | 'completed' | 'failed' | 'cancelled'> = {
+    'RUNNING': 'running',
+    'QUEUED': 'queued',
+    'COMPLETED': 'completed',
+    'SUCCEEDED': 'completed',
+    'FAILED': 'failed',
+    'CANCELLED': 'cancelled',
+  };
+  return statusMap[status] || 'queued';
+};
+
+// Helper: Format time ago
+const formatTimeAgo = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ago`;
+};
+
+// Helper: Format duration
+const formatDuration = (durationMs: number): string => {
+  if (durationMs < 0) return '0s'; // Handle invalid durations
+
+  const seconds = Math.floor(durationMs / 1000);
+  if (seconds < 60) return `${seconds}s`;
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds}s`;
+};
+
+// Component for individual workflow with live timer
+function ActiveWorkflowItem({ workflow }: { workflow: WorkflowState }) {
+  const isRunning = workflow.status === 'RUNNING' || workflow.status === 'QUEUED';
+  const elapsedMs = useElapsedTime(workflow.startedAt, isRunning);
+
+  return (
+    <WorkflowHistoryItem
+      key={workflow.runId}
+      variant="active"
+      status={mapStatus(workflow.status)}
+      title={workflow.workflowName}
+      description={`#${workflow.runId.slice(0, 8)}`}
+      triggeredAtLabel={formatTimeAgo(workflow.startedAt)}
+      durationLabel={formatDuration(elapsedMs)}
+    />
+  );
+}
+
+export default function ActiveWorkflows({ workflows }: ActiveWorkflowsProps) {
   return (
     <section className="col-span-full mb-8">
       {/* Header*/}
@@ -23,7 +107,7 @@ export default function ActiveWorkflows({ runs }: ActiveWorkflowsProps) {
 
       {/* List */}
       <div className="space-y-4">
-       {runs.length === 0 ? (
+       {workflows.length === 0 ? (
           <EmptyStateCard
             key="empty-active-workflows"
             icon="ACTIVE_WORKFLOWS"
@@ -31,23 +115,9 @@ export default function ActiveWorkflows({ runs }: ActiveWorkflowsProps) {
             description="Workflow runs will appear here once they are executed."
           />
           ) : (
-            <WorkflowHistoryItem
-              key="active-workflows"
-              variant="active"
-              status="running"
-              title="Compliance Processing"
-              description="#comp-pl-185730"
-              triggeredAtLabel="5 mins ago"
-              durationLabel="5m 40s"
-            />
-            // <WorkflowHistoryItem
-            //   variant="active"
-            //   status="running"
-            //   title="Media Transcoding"
-            //   description="#15078…"
-            //   triggeredAtLabel="12 min ago"
-            //   durationLabel="12m 43s"
-            // />
+            workflows.map((workflow) => (
+              <ActiveWorkflowItem key={workflow.runId} workflow={workflow} />
+            ))
         )}
       </div>
     </section>

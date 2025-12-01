@@ -2,30 +2,46 @@ import Link from 'next/link';
 
 import WorkflowHistoryItem from '@/components/recentrunslist/WorkflowHistoryItem';
 import { EmptyStateCard } from '@/components/shared/EmptyStateCard';
-
-export type RunStatus = 'running' | 'succeeded' | 'failed';
-
-export interface RunStep {
-  id: string;
-  name: string;
-  durationMs: number;
-}
-
-export interface Run {
-  id: string;
-  workflowName: string;
-  status: RunStatus;
-  startedAt: string;
-  durationMs: number;
-  steps: RunStep[];
-  retries?: number;
-  worker?: string;
-  queue?: string;
-}
+import { WorkflowState } from '@/app/hooks/useWorkflowStream';
 
 type RecentRunsProps = {
-  runs: Run[];
-}
+  runs: WorkflowState[];
+};
+
+// TODO: Move to adapter layer in production
+// Helper functions to transform WorkflowState to UI format
+const mapStatus = (status: string): 'completed' | 'running' | 'failed' | 'cancelled' | 'queued' => {
+  const statusMap: Record<string, 'completed' | 'running' | 'failed' | 'cancelled' | 'queued'> = {
+    'COMPLETED': 'completed',
+    'SUCCEEDED': 'completed',
+    'RUNNING': 'running',
+    'FAILED': 'failed',
+    'CANCELLED': 'cancelled',
+    'QUEUED': 'queued',
+  };
+  return statusMap[status] || 'queued';
+};
+
+const formatTimeAgo = (timestamp: string): string => {
+  if (!timestamp) return 'Unknown';
+  const date = new Date(timestamp);
+
+  return date.toLocaleString();
+};
+
+const formatDuration = (startedAt: string, finishedAt?: string, duration?: number): string => {
+  if (duration) {
+    return `${Math.floor(duration / 1000)}s`;
+  }
+  if (finishedAt && startedAt) {
+    const start = new Date(startedAt).getTime();
+    const end = new Date(finishedAt).getTime();
+    const durationMs = end - start;
+
+    return `${Math.floor(durationMs / 1000)}s`;
+  }
+  return 'N/A';
+};
 
 export default function RecentRunsList({ runs }: RecentRunsProps) {
   return (
@@ -50,16 +66,16 @@ export default function RecentRunsList({ runs }: RecentRunsProps) {
         />
       ) : (
         <div className="space-y-4">
-          {runs.map((runItem) => (
+          {runs.map((workflow) => (
             <WorkflowHistoryItem
-              key={runItem?.id}
+              key={workflow.runId}
               variant="recent"
-              status={runItem.status as 'running' | 'completed' | 'failed' | 'cancelled' | 'queued'}
-              title={runItem.workflowName}
-              description={`${runItem.steps.length} steps`}
-                triggeredAtLabel={new Date(runItem.startedAt).toLocaleString()}
-                durationLabel={`${Math.floor(runItem.durationMs / 1000)}s`}
-              />
+              status={mapStatus(workflow.status)}
+              title={workflow.workflowName}
+              description={`Completed at ${formatTimeAgo(workflow.finishedAt)}`}
+              triggeredAtLabel={formatTimeAgo(workflow.startedAt)}
+              durationLabel={formatDuration(workflow.startedAt, workflow.finishedAt, workflow.duration)}
+            />
           ))}
         </div>
       )}

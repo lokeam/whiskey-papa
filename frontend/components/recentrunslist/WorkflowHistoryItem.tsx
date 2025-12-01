@@ -8,7 +8,6 @@ import { XCircleIcon } from '@/components/ui/logos/XCircleIcon';
 import { QueuedLogo } from '@/components/ui/logos/QueuedLogo';
 import { ClockIcon } from '@/components/ui/logos/ClockIcon';
 
-
 type WorkflowStatus = 'completed' | 'running' | 'failed' | 'cancelled' | 'queued';
 
 type WorkflowHistoryItemProps = {
