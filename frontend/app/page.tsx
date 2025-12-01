@@ -16,6 +16,9 @@ import { useWorkflowStream } from '@/app/hooks/useWorkflowStream';
 import { useCompletedWorkflows } from '@/app/hooks/useCompletedWorkflows';
 import { useMetrics } from '@/app/hooks/useMetrics';
 
+const TRIGGER_WORKFLOW_API = '/api/workflows/trigger';
+const DOCUMENT_PROCESSING_PIPELINE = 'document-processing-pipeline';
+const INVOICE_PROCESSING_PIPELINE = 'invoice-processing-pipeline';
 
 export default function Home() {
   const [runId, setRunId] = useState<string | null>(null);
@@ -42,13 +45,13 @@ export default function Home() {
   }, [workflowState.status, workflowState.runId, refreshMetrics]);
 
 
-  const handleTriggerTestWorkflow = async () => {
+  const handleTriggerDAGWorkflow = async () => {
     try {
-      const res = await fetch('/api/workflows/trigger', {
+      const res = await fetch(TRIGGER_WORKFLOW_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          workflowName: 'document-processing-pipeline',
+          workflowName: DOCUMENT_PROCESSING_PIPELINE,
           input: { documentId: `demo-${Date.now()}` }
         })
       });
@@ -57,22 +60,52 @@ export default function Home() {
 
       if (data.success) {
         console.log('✅ Workflow triggered:', data.workflowRunId);
-        setRunId(data.workflowRunId); // ← This starts streaming!
+        setRunId(data.workflowRunId);
       }
     } catch (err) {
       console.error('Failed to trigger workflow:', err);
     }
   };
 
+  const handleTriggerInvoiceWorkflow = async () => {
+    try {
+      const res = await fetch(TRIGGER_WORKFLOW_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workflowName: INVOICE_PROCESSING_PIPELINE,
+          input: { documentId: `demo-${Date.now()}` }
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        console.log('✅ Workflow triggered:', data.workflowRunId);
+        setRunId(data.workflowRunId);
+      }
+    } catch (err) {
+      console.error('Failed to trigger workflow:', err);
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-background">
       <PageMain>
+        <div className="flex flex-row gap-4">
           <button
             className="mb-4 px-4 py-2 bg-blue-600 text-white rounded cursor-pointer"
-            onClick={handleTriggerTestWorkflow}
+            onClick={handleTriggerDAGWorkflow}
             >
-              Trigger Test Workflow
+              Trigger DAG Success Workflow
           </button>
+          <button
+            className="mb-4 px-4 py-2 bg-red-800 text-white rounded cursor-pointer"
+            onClick={handleTriggerInvoiceWorkflow}
+            >
+              Trigger DAG Fail Workflow
+          </button>
+        </div>
         <PageGrid>
 
           <PlatformHealth />
