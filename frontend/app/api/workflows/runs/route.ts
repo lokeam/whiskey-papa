@@ -1,4 +1,3 @@
-import { WorkflowRunList } from './../../../../node_modules/@hatchet-dev/typescript-sdk/clients/rest/generated/data-contracts.d';
 import { NextRequest, NextResponse } from 'next/server';
 import { getHatchetClient } from '@/lib/hatchet/client';
 
