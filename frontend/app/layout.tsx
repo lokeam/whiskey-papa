@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TopNavigation } from "@/components/navigation/TopNavigation";
+import { MetricsProvider } from "./providers/MetricsProvider";
 
 
 const geistSans = Geist({
@@ -29,7 +30,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
         <main className="h-full bg-background antialiased">
           <TopNavigation />
-          {children}
+          <MetricsProvider>
+            {children}
+          </MetricsProvider>
         </main>
       </body>
     </html>

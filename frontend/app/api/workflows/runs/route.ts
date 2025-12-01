@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
     const hatchetClient = getHatchetClient();
     const response = await hatchetClient.admin.runs.list();
 
+    console.log(hatchetClient.metrics.getWorkflowMetrics)
+
     return NextResponse.json({
       success: true,
       runs: response.rows || [],

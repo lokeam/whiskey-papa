@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Layout Items
 import { PageMain } from "@/components/layout/page-main";
@@ -14,6 +14,7 @@ import RecentRunsList from "@/components/recentrunslist/RecentRunsList";
 // Hooks
 import { useWorkflowStream } from '@/app/hooks/useWorkflowStream';
 import { useCompletedWorkflows } from '@/app/hooks/useCompletedWorkflows';
+import { useMetrics } from '@/app/hooks/useMetrics';
 
 
 export default function Home() {
@@ -21,11 +22,24 @@ export default function Home() {
   const workflowState = useWorkflowStream(runId);
   const completedWorkflows = useCompletedWorkflows();
 
-   // Compute derived state
+  const { refresh: refreshMetrics } = useMetrics();
+
+  // Compute derived state
   const activeWorkflows = workflowState.runId &&
     (workflowState.status === 'QUEUED' || workflowState.status === 'RUNNING')
       ? [workflowState]
       : [];
+
+  // Refresh metrics when workflow completes
+  useEffect(() => {
+    const isCompleted = ['COMPLETED', 'SUCCEEDED', 'FAILED', 'CANCELLED'].includes(workflowState.status);
+
+    if (isCompleted && workflowState.runId) {
+      console.log('🔄 Workflow completed, refreshing metrics...');
+
+      setTimeout(() => refreshMetrics(), 1000);
+    }
+  }, [workflowState.status, workflowState.runId, refreshMetrics]);
 
 
   const handleTriggerTestWorkflow = async () => {
@@ -61,7 +75,7 @@ export default function Home() {
           </button>
         <PageGrid>
 
-          <PlatformHealth runs={[]} />
+          <PlatformHealth />
           <ActiveWorkflows workflows={activeWorkflows} />
           <RecentRunsList runs={completedWorkflows} />
 

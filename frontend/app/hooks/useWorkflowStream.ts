@@ -115,9 +115,27 @@ export function useWorkflowStream(runId: string | null) {
 
     // Create handlers - onerror
     eventSource.onerror = (err) => {
-      console.error('❌ SSE error:', err);
-      setWorkflowState(prev => ({ ...prev, error: 'Connection error', isConnected: false }));
-      eventSource.close();
+      // EventSource errors don't provide useful details, check readyState
+      if (eventSource.readyState === EventSource.CLOSED) {
+        console.log('🔌 SSE connection closed by server (workflow likely completed)');
+
+        setWorkflowState(prev => ({ ...prev, isConnected: false }));
+      } else if (eventSource.readyState === EventSource.CONNECTING) {
+        console.log('🔄 SSE reconnecting...');
+      } else {
+        console.error('❌ SSE connection error');
+
+        setWorkflowState(prev => ({
+          ...prev,
+          error: 'Connection error',
+          isConnected: false
+        }));
+      }
+
+      // Close if not already closed
+      if (eventSource.readyState !== EventSource.CLOSED) {
+        eventSource.close();
+      }
     };
 
     // Cleanup

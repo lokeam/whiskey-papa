@@ -1,30 +1,18 @@
+'use client';
+
 import React from 'react';
-import Link from 'next/link';
+
+// Utils
 import { cn } from '@/components/ui/utils';
+
+// Icons
 import { CheckCircleIcon } from '@/components/ui/logos/CheckCircleIcon';
 import { SparklesIcon } from '@/components/ui/logos/SparklesIcon';
 import { ClockIcon } from '@/components/ui/logos/ClockIcon';
-import { PlayIcon } from '@/components/ui/logos/PlayIcon';
+import { BoltCircleDashedIcon } from '@/components/ui/logos/BoltCircleDashedIcon';
 
-export type RunStatus = 'running' | 'succeeded' | 'failed';
-
-export interface RunStep {
-  id: string;
-  name: string;
-  durationMs: number;
-}
-
-export interface Run {
-  id: string;
-  workflowName: string;
-  status: RunStatus;
-  startedAt: string;
-  durationMs: number;
-  steps: RunStep[];
-  retries?: number;
-  worker?: string;
-  queue?: string;
-}
+// Hooks
+import { useMetrics } from '@/app/hooks/useMetrics';
 
 type MetricCardProps = {
   icon: React.ReactNode;
@@ -66,32 +54,52 @@ function MetricCard({ icon, title, titleColor, metric, description, legend }: Me
   );
 }
 
-type PlatformHealthProps = {
-  runs: Run[];
-}
+export default function PlatformHealth() {
+  const { metrics, isLoading, error } = useMetrics();
 
-export default function PlatformHealth({ runs }: PlatformHealthProps) {
-  // Calculate metrics from runs data
-  const totalRuns = runs.length;
-  const successfulRuns = runs.filter(r => r.status === 'succeeded').length;
-  const failedRuns = runs.filter(r => r.status === 'failed').length;
-  const runningRuns = runs.filter(r => r.status === 'running').length;
+  // Show loading state
+  if (isLoading) {
+    return (
+      <section className="col-span-full mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-3xl font-bold">Platform Health</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="border border-border rounded-lg p-6 bg-card animate-pulse">
+              <div className="h-6 w-6 bg-muted rounded mb-4" />
+              <div className="h-4 w-20 bg-muted rounded mb-2" />
+              <div className="h-8 w-16 bg-muted rounded mb-2" />
+              <div className="h-3 w-32 bg-muted rounded" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
-  const successRate = totalRuns > 0 ? ((successfulRuns / totalRuns) * 100).toFixed(1) : '0.0';
+  // Show error state
+  if (error || !metrics) {
+    return (
+      <section className="col-span-full mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-3xl font-bold">Platform Health</h2>
+        </div>
+        <div className="border border-border rounded-lg p-6 bg-card text-center">
+          <p className="text-muted-foreground">Failed to load metrics</p>
+        </div>
+      </section>
+    );
+  }
 
-  // Calculate average duration
-  const avgDurationMs = totalRuns > 0
-    ? runs.reduce((sum, run) => sum + run.durationMs, 0) / totalRuns
-    : 0;
-  const avgDurationMinutes = Math.floor(avgDurationMs / 60000);
-  const avgDurationSeconds = Math.floor((avgDurationMs % 60000) / 1000);
-  const avgDuration = `${avgDurationMinutes}m ${avgDurationSeconds}s`;
+  // Extract metrics data
+  const { successRate, queueDepth, avgDuration, throughput } = metrics;
 
-  // Mock freshness status (TODO: replace with actual logic)
-  const freshnessStatus: 'fresh' | 'stale' = 'fresh';
-
-  // Mock jobs processed (TODO: replace with actual logic)
-  const jobsProcessed = 128;
+  // Calculate freshness (data is fresh if updated within last 2 minutes)
+  const lastUpdated = new Date(metrics.lastUpdated);
+  const now = new Date();
+  const ageMinutes = (now.getTime() - lastUpdated.getTime()) / 60000;
+  const freshnessStatus: 'fresh' | 'stale' = ageMinutes < 2 ? 'fresh' : 'stale';
 
   return (
     <section className="col-span-full mb-8">
@@ -109,21 +117,21 @@ export default function PlatformHealth({ runs }: PlatformHealthProps) {
           icon={<CheckCircleIcon className="w-6 h-6 text-green-500" />}
           title="Success Rate"
           titleColor="text-green-500"
-          metric={`${successRate}%`}
+          metric={`${successRate.value}%`}
           description="Workflows completed successfully"
           legend={
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-muted-foreground">{successfulRuns} Success</span>
+                <span className="text-muted-foreground">{successRate.succeeded} Success</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-muted-foreground">{runningRuns} Queued</span>
+                <span className="text-muted-foreground">{queueDepth.queued} Queued</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-muted-foreground">{failedRuns} Failed</span>
+                <span className="text-muted-foreground">{successRate.failed} Failed</span>
               </div>
             </div>
           }
@@ -155,17 +163,17 @@ export default function PlatformHealth({ runs }: PlatformHealthProps) {
           icon={<ClockIcon className="text-blue-500" />}
           title="Avg Duration"
           titleColor="text-blue-500"
-          metric={avgDuration}
+          metric={avgDuration.formatted}
           description="Average workflow execution time"
         />
 
-        {/* Jobs Processed Card */}
+        {/* Throughput Card */}
         <MetricCard
-          icon={<PlayIcon className="w-6 h-6 text-orange-500" />}
-          title="Jobs Processed"
+          icon={<BoltCircleDashedIcon className="w-6 h-6 text-orange-500" />}
+          title="Throughput"
           titleColor="text-orange-500"
-          metric={jobsProcessed.toString()}
-          description="In last 24 hours"
+          metric={`${throughput.value}`}
+          description={`Workflows processed ${throughput.unit}`}
         />
       </div>
     </section>
