@@ -306,7 +306,8 @@ export function SingleRunStepSection({
 
   return (
     <section className="col-span-full mb-8">
-      <div className="border border-border rounded-lg bg-card">
+      {/* border border-border bg-card */}
+      <div className="border border-border rounded-lg bg-[#B8D9FF]/3">
         {/* Header */}
         <div className="px-6 py-4 border-b border-border">
           <h2 className="text-xl font-bold">Workflow Steps</h2>

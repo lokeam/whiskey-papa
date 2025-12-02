@@ -83,12 +83,10 @@ const mockActivityLogs = [
 ];
 
 export default function IndividualRunPage() {
-
-
-
+  // In a real app, runId would come from params
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-background">
+    // <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-background">
       <PageMain>
         <PageGrid>
           <SingleRunHeader
@@ -124,6 +122,6 @@ export default function IndividualRunPage() {
 
         </PageGrid>
       </PageMain>
-    </div>
+    // </div>
   );
 }

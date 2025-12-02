@@ -160,6 +160,7 @@ export function SingleRunActivityLog({
           ref={logContainerRef}
           className="bg-black/95 p-4 font-mono text-sm overflow-auto"
           style={{ maxHeight }}
+          data-activity-log="content"
         >
           {filteredEvents.length === 0 ? (
             <div className="text-gray-500 text-center py-8">

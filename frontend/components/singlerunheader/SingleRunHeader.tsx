@@ -117,29 +117,9 @@ export function SingleRunHeader({
 
   return (
     <section className="col-span-full mb-8">
-      {/* Breadcrumb Navigation */}
-      <nav className="flex items-center gap-2 text-sm mb-6">
-        <Link
-          href="/"
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Home
-        </Link>
-        <ChevronIcon direction="right" className="w-3 h-3 text-muted-foreground" />
-        <Link
-          href="/"
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Runs
-        </Link>
-        <ChevronIcon direction="right" className="w-3 h-3 text-muted-foreground" />
-        <span className="text-foreground font-medium truncate max-w-xs" title={runId}>
-          {runId}
-        </span>
-      </nav>
-
       {/* Header Container */}
-      <div className="border border-border rounded-lg p-6 bg-card">
+      {/* border border-border bg-card */}
+      <div className=" rounded-lg p-6 bg-[#B8D9FF]/3">
         {/* Top Row: Title and Actions */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex-1">
