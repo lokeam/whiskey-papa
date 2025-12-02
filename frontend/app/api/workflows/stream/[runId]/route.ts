@@ -67,6 +67,33 @@ export async function GET(
 
       let lastStatus = '';
       let isComplete = false;
+      let intervalId: NodeJS.Timeout | null = null;
+      let retryCount = 0;
+      const MAX_RETRIES = 5; // Retry 404s for up to 5 seconds
+
+      // Helper to safely enqueue messages
+      const safeEnqueue = (message: string) => {
+        try {
+          controller.enqueue(new TextEncoder().encode(message));
+        } catch (err) {
+          console.error('Failed to enqueue message (controller likely closed):', err);
+        }
+      };
+
+      // Helper to safely close stream
+      const closeStream = () => {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        isComplete = true;
+        try {
+          controller.close();
+        } catch (err) {
+          // Controller already closed, ignore
+          console.error('Failed to close stream (controller likely closed):', err);
+        }
+      };
 
       // Poll function - checks Hatchet for updates
       const poll = async () => {
@@ -85,6 +112,7 @@ export async function GET(
           }
 
           const run = typedResponse.run;
+          retryCount = 0; // Reset retry count on successful poll
 
           // Only send update if status changed
           if (run.status !== lastStatus) {
@@ -107,36 +135,45 @@ export async function GET(
 
             // Format as SSE and send to browser
             const sseMessage = `data: ${JSON.stringify(event)}\n\n`;
-            controller.enqueue(new TextEncoder().encode(sseMessage));
+            safeEnqueue(sseMessage);
           }
 
           // Check if workflow is done
           if (run.status === 'SUCCEEDED' || run.status === 'FAILED' || run.status === 'CANCELLED') {
             console.log(`✅ Workflow ${run.status}, closing stream`);
-            isComplete = true;
-            controller.close();
+            closeStream();
           }
-        } catch (error) {
+        } catch (error: unknown) {
+          // Handle 404 errors (workflow not ready yet) with retry logic
+          const errorStatus = (error && typeof error === 'object' && 'status' in error)
+            ? (error as { status: number }).status
+            : null;
+
+          if (errorStatus === 404 && retryCount < MAX_RETRIES) {
+            retryCount++;
+            console.log(`⏳ Workflow not ready yet (404), retry ${retryCount}/${MAX_RETRIES}`);
+            return; // Continue polling
+          }
+
           console.error(`❌ Error polling run:`, error);
 
-          // Send error to client
+          // Send error to client only if we can
           const errorMsg = `data: ${JSON.stringify({
             type: 'ERROR',
             message: error instanceof Error ? error.message : 'Polling error'
           })}\n\n`;
-          controller.enqueue(new TextEncoder().encode(errorMsg));
+          safeEnqueue(errorMsg);
 
-          isComplete = true;
-          controller.close();
+          closeStream();
         }
       };
 
       // Poll immediately, then every 1 second
       await poll();
 
-      const interval = setInterval(async () => {
+      intervalId = setInterval(async () => {
         if (isComplete) {
-          clearInterval(interval);
+          if (intervalId) clearInterval(intervalId);
           return;
         }
         await poll();

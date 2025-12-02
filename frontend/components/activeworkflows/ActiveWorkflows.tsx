@@ -51,15 +51,23 @@ const mapStatus = (status: string): 'running' | 'queued' | 'completed' | 'failed
 
 // Helper: Format time ago
 const formatTimeAgo = (timestamp: string): string => {
+  // Hatchet returns '0001-01-01T00:00:00Z' for workflows that haven't started yet
+  if (!timestamp || timestamp === '0001-01-01T00:00:00Z') {
+    return 'Just now';
+  }
+
   const date = new Date(timestamp);
   const now = new Date();
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
+  if (seconds < 0) return 'Just now'; // Handle future timestamps
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
-  return `${hours}h ago`;
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 };
 
 // Helper: Format duration

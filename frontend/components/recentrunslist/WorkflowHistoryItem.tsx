@@ -97,7 +97,7 @@ export default function WorkflowHistoryItem({
       <div className="flex min-w-0 items-start gap-3">
         <StatusIcon status={status} variant={variant} />
         <div className="min-w-0">
-          <h3 className="truncate text-lg font-medium pb-1">{title} &bull; {variant === 'active' && <span className="text-xs text-yellow-500">RUNNING</span>}</h3>
+          <h3 className="truncate text-lg font-medium pb-1">{title} &bull; {variant === 'active' && <span className="text-xs text-yellow-500">{status.toUpperCase()}</span>}</h3>
           <p className="truncate text-xs text-neutral-400">workflow: {description}</p>
         </div>
       </div>

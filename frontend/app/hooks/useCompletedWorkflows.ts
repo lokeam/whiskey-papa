@@ -28,14 +28,23 @@ const getInitialWorkflows = (): WorkflowState[] => {
 export function useCompletedWorkflows() {
   const [completedWorkflows, setCompletedWorkflows] = useState<WorkflowState[]>(() => getInitialWorkflows());
 
-  // Poll localStorage every 2 seconds to catch updates
   useEffect(() => {
-    const interval = setInterval(() => {
+    // Refresh function
+    const refresh = () => {
       const updated = getInitialWorkflows();
       setCompletedWorkflows(updated);
-    }, 2000);
+    };
 
-    return () => clearInterval(interval);
+    // Poll localStorage every 2 seconds to catch updates
+    const interval = setInterval(refresh, 2000);
+
+    // Listen for custom event when workflows are saved
+    window.addEventListener('workflowCompleted', refresh);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('workflowCompleted', refresh);
+    };
   }, []);
 
   return completedWorkflows;
