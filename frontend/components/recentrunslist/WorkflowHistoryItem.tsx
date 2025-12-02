@@ -1,6 +1,12 @@
+'use client';
+
 import React from 'react';
+import { useRouter } from 'next/navigation';
+
+// Utils
 import { cn } from '@/components/ui/utils';
 
+// Icons
 import { BoltCircleDashedIcon } from '@/components/ui/logos/BoltCircleDashedIcon';
 import { XIcon } from '@/components/ui/logos/XIcon';
 import { CheckCircleDashedIcon } from '@/components/ui/logos/CheckCircleDashedIcon';
@@ -17,6 +23,7 @@ type WorkflowHistoryItemProps = {
   triggeredAtLabel: string;
   durationLabel: string;
   variant?: 'recent' | 'active';
+  runId: string;
 };
 
 const STATUS_ICONS = {
@@ -70,15 +77,22 @@ export default function WorkflowHistoryItem({
   triggeredAtLabel,
   durationLabel,
   variant = 'recent',
+  runId,
 }: WorkflowHistoryItemProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/runs/${runId}`);
+  }
+
   const containerClasses = cn(
-    'flex items-center justify-between gap-4 rounded-md px-4 py-3 text-sm cursor-pointer',
+    'flex items-center justify-between gap-4 rounded-md px-4 py-3 text-sm cursor-pointer hover:bg-[#B8D9FF]/3 transition-colors',
     variant === 'recent' && 'bg-transparent border border-border text-foreground',
     variant === 'active' && 'bg-navy text-foreground animate-pulse-subtle'
   );
 
   return (
-    <article className={containerClasses}>
+    <article className={containerClasses} onClick={handleClick}>
       {/* Left: status icon + text */}
       <div className="flex min-w-0 items-start gap-3">
         <StatusIcon status={status} variant={variant} />

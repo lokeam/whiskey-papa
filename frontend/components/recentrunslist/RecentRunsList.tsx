@@ -107,6 +107,7 @@ export default function RecentRunsList({ runs }: RecentRunsProps) {
               description={`Completed at ${formatTimeAgo(workflow.finishedAt)}`}
               triggeredAtLabel={formatTimeAgo(workflow.startedAt)}
               durationLabel={formatDuration(workflow.startedAt, workflow.finishedAt, workflow.duration)}
+              runId={workflow.runId}
             />
           ))}
         </div>

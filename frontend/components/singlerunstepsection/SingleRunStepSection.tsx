@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/components/ui/utils';
+import { WorkflowStep, ParallelGroup } from '@/lib/hatchet/types';
 
 // Icons
 import { CheckCircleDashedIcon } from '@/components/ui/logos/CheckCircleDashedIcon';
@@ -9,27 +10,6 @@ import { BoltCircleDashedIcon } from '@/components/ui/logos/BoltCircleDashedIcon
 import { XCircleIcon } from '@/components/ui/logos/XCircleIcon';
 import { CircleOffIcon } from '@/components/ui/logos/CircleOffIcon';
 import { ClockIcon } from '@/components/ui/logos/ClockIcon';
-
-type StepStatus = 'COMPLETED' | 'SUCCEEDED' | 'RUNNING' | 'FAILED' | 'CANCELLED' | 'QUEUED' | 'PENDING';
-
-interface WorkflowStep {
-  id: string;
-  name: string;
-  status: StepStatus;
-  duration?: number; // duration always in millisec
-  startedAt?: string;
-  finishedAt?: string;
-  error?: string;
-  isParallel?: boolean;
-  parentGroup?: string;
-}
-
-interface ParallelGroup {
-  name: string;
-  steps: WorkflowStep[];
-  totalDuration: number;
-  slowestStep?: WorkflowStep;
-}
 
 interface SingleRunStepSectionProps {
   steps: WorkflowStep[];
@@ -254,9 +234,9 @@ function ParallelGroupSection({
   onViewLogs?: (stepId: string) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(true);
-
+// bg-accent/5
   return (
-    <div className="border border-border/50 rounded-md my-2 bg-accent/5">
+    <div className="border border-navy rounded-md my-2">
       {/* Group Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -315,7 +295,7 @@ export function SingleRunStepSection({
 
         {/* Steps List */}
         <div className="px-6 py-2">
-          {groupedSteps.map((item, index) => {
+          {groupedSteps.map((item) => {
             if ('steps' in item) {
               // Parallel group
               return (

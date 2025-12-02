@@ -88,6 +88,7 @@ function ActiveWorkflowItem({ workflow }: { workflow: WorkflowState }) {
       description={`#${workflow.runId.slice(0, 8)}`}
       triggeredAtLabel={formatTimeAgo(workflow.startedAt)}
       durationLabel={formatDuration(elapsedMs)}
+      runId={workflow.runId}
     />
   );
 }

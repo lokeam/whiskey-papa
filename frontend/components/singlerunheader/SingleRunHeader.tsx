@@ -1,27 +1,28 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
+
+// Utils
 import { cn } from '@/components/ui/utils';
 
+// Types
+import { WorkflowRunStatus } from '@/lib/hatchet/types';
+
 // Icons
-import { ChevronIcon } from '@/components/ui/logos/ChevronIcon';
 import { CheckCircleDashedIcon } from '@/components/ui/logos/CheckCircleDashedIcon';
 import { BoltCircleDashedIcon } from '@/components/ui/logos/BoltCircleDashedIcon';
 import { XCircleIcon } from '@/components/ui/logos/XCircleIcon';
 import { CircleOffIcon } from '@/components/ui/logos/CircleOffIcon';
 import { ClockIcon } from '@/components/ui/logos/ClockIcon';
 
-type WorkflowStatus = 'COMPLETED' | 'SUCCEEDED' | 'RUNNING' | 'FAILED' | 'CANCELLED' | 'QUEUED';
-
 interface SingleRunHeaderProps {
   runId: string;
   workflowName: string;
-  status: WorkflowStatus;
+  status: WorkflowRunStatus;
   triggeredAt: string;
   startedAt?: string;
   finishedAt?: string;
-  duration: number; // in milliseconds
+  duration: number;
   totalSteps: number;
   completedSteps: number;
   onCopyConfig?: () => void;
@@ -31,12 +32,23 @@ interface SingleRunHeaderProps {
 }
 
 // Status icon mapping
-const STATUS_CONFIG = {
-  COMPLETED: {
-    icon: CheckCircleDashedIcon,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
-    label: 'Completed',
+const STATUS_CONFIG: Record<WorkflowRunStatus, {
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  bgColor: string;
+  label: string;
+}> = {
+  PENDING: {
+    icon: ClockIcon,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10',
+    label: 'Pending',
+  },
+  RUNNING: {
+    icon: BoltCircleDashedIcon,
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-500/10',
+    label: 'Running',
   },
   SUCCEEDED: {
     icon: CheckCircleDashedIcon,
@@ -44,11 +56,11 @@ const STATUS_CONFIG = {
     bgColor: 'bg-green-500/10',
     label: 'Succeeded',
   },
-  RUNNING: {
-    icon: BoltCircleDashedIcon,
-    color: 'text-yellow-500',
-    bgColor: 'bg-yellow-500/10',
-    label: 'Running',
+  COMPLETED: {
+    icon: CheckCircleDashedIcon,
+    color: 'text-green-500',
+    bgColor: 'bg-green-500/10',
+    label: 'Completed',
   },
   FAILED: {
     icon: XCircleIcon,
@@ -62,14 +74,9 @@ const STATUS_CONFIG = {
     bgColor: 'bg-gray-500/10',
     label: 'Cancelled',
   },
-  QUEUED: {
-    icon: ClockIcon,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
-    label: 'Queued',
-  },
-} as const;
+};
 
+// Helper fns for formatting
 function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
   if (seconds < 60) return `${seconds}s`;
@@ -111,9 +118,9 @@ export function SingleRunHeader({
   onReplay,
   onCancel,
 }: SingleRunHeaderProps) {
-  const config = STATUS_CONFIG[status] || STATUS_CONFIG.QUEUED;
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.PENDING;
   const StatusIconComponent = config.icon;
-  const canCancel = status === 'RUNNING' || status === 'QUEUED';
+  const canCancel = status === 'RUNNING' || status === 'PENDING';
 
   return (
     <section className="col-span-full mb-8">
@@ -206,7 +213,7 @@ export function SingleRunHeader({
           <span className="text-sm font-medium">{formatDuration(duration)} total</span>
           <span className="text-muted-foreground">•</span>
           <span className="text-sm text-muted-foreground">
-            {completedSteps}/{totalSteps} steps {status === 'COMPLETED' || status === 'SUCCEEDED' ? 'succeeded' : 'completed'}
+            {completedSteps}/{totalSteps} steps {status === 'SUCCEEDED' || status === 'COMPLETED' ? 'succeeded' : 'completed'}
           </span>
         </div>
 

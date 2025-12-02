@@ -2,18 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/components/ui/utils';
+import { ActivityLogEvent } from '@/lib/hatchet/types';
 
-type LogLevel = 'INFO' | 'SUCCESS' | 'WARN' | 'ERROR' | 'DEBUG';
 type LogFilter = 'ALL' | 'ERRORS' | 'WARNINGS' | 'SUCCESS';
-
-interface ActivityLogEvent {
-  id: string;
-  timestamp: string;
-  level: LogLevel;
-  message: string;
-  stepId?: string;
-  stepName?: string;
-}
 
 interface SingleRunActivityLogProps {
   events: ActivityLogEvent[];
