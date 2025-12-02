@@ -37,8 +37,16 @@ export async function GET(
   console.log('Tasks count:', rawResponse.tasks?.length || 0);
   console.log('TaskEvents count:', rawResponse.taskEvents?.length || 0);
   console.log('Shape count:', rawResponse.shape?.length || 0);
+  if (rawResponse.shape && rawResponse.shape.length > 0) {
+    console.log('Shape array:', JSON.stringify(rawResponse.shape, null, 2));
+  }
   if (rawResponse.tasks?.length > 0) {
     console.log('First task sample:', JSON.stringify(rawResponse.tasks[0], null, 2));
+    console.log('Task timestamp fields:');
+    console.log('  createdAt:', rawResponse.tasks[0].createdAt);
+    console.log('  taskInsertedAt:', rawResponse.tasks[0].taskInsertedAt);
+    console.log('  startedAt:', rawResponse.tasks[0].startedAt);
+    console.log('  finishedAt:', rawResponse.tasks[0].finishedAt);
   }
 
   // Transform
@@ -50,6 +58,11 @@ export async function GET(
   console.log('Duration:', transformedResponse.duration);
   console.log('Total steps:', transformedResponse.totalSteps);
   console.log('Completed steps:', transformedResponse.completedSteps);
+  console.log('Steps with isParallel=true:', transformedResponse.steps.filter(s => s.isParallel).length);
+  const parallelSteps = transformedResponse.steps.filter(s => s.isParallel);
+  if (parallelSteps.length > 0) {
+    console.log('Parallel steps:', parallelSteps.map(s => ({ name: s.name, group: s.parentGroup })));
+  }
 
   return NextResponse.json(transformedResponse);
 

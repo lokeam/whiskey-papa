@@ -22,8 +22,11 @@ function mapTaskStatusToStepStatus(status: string): StepStatus {
 
 interface HatchetTask {
   metadata?: { id: string };
-  taskName?: string;
+  stepId?: string;
+  actionId?: string;
   status: string;
+  createdAt?: string;
+  taskInsertedAt?: string;  // When task was inserted into queue
   startedAt?: string;
   finishedAt?: string;
   error?: string;
@@ -76,16 +79,28 @@ export function transformRawRunData(hatchetResponse: HatchetResponse): RunRespon
 
   // Transform tasks into WorkflowStep objs
   const workflowSteps: WorkflowStep[] = (tasks || []).map((task) => {
-    const stepId = task.metadata?.id || '';
+    const taskId = task.metadata?.id || '';
+    const stepId = task.stepId || '';
     const workflowStep = parallelStepMap.get(stepId);
 
+    // Calculate timing metrics
+    // Use taskInsertedAt (when task entered queue) instead of createdAt (which is often 0001-01-01)
+    const queuedTime = task.taskInsertedAt ? new Date(task.taskInsertedAt).getTime() : null;
+    const startedTime = task.startedAt ? new Date(task.startedAt).getTime() : null;
+    const finishedTime = task.finishedAt ? new Date(task.finishedAt).getTime() : null;
+
+    const queueTime = queuedTime && startedTime ? startedTime - queuedTime : undefined;
+    const runTime = startedTime && finishedTime ? finishedTime - startedTime : undefined;
+    const totalDuration = queuedTime && finishedTime ? finishedTime - queuedTime : undefined;
+
     return {
-      id: stepId,
-      name: extractStepName(task.taskName || ''),
+      id: taskId,
+      name: extractStepName(task.actionId || ''),
       status: mapTaskStatusToStepStatus(task.status),
-      duration: task.finishedAt && task.startedAt
-        ? new Date(task.finishedAt).getTime() - new Date(task.startedAt).getTime()
-        : undefined,
+      duration: totalDuration,
+      queueTime,
+      runTime,
+      createdAt: task.taskInsertedAt,  // Use taskInsertedAt as the creation time
       startedAt: task.startedAt,
       finishedAt: task.finishedAt,
       error: task.error,

@@ -66,93 +66,66 @@ function formatDuration(ms: number): string {
 
 /**
  * Groups parallel workflow steps together while preserving sequential step order.
- * Returns a mixed array of individual steps + parallel group objects.
+ * Steps are already marked with isParallel and parentGroup by the transformer.
  */
 function groupParallelSteps(steps: WorkflowStep[]): (WorkflowStep | ParallelGroup)[] {
   const result: (WorkflowStep | ParallelGroup)[] = [];
-  const parallelGroups = new Map<string, WorkflowStep[]>();
+  const groupMap = new Map<string, WorkflowStep[]>();
+  const groupIndices = new Map<string, number>();  // Track where each group is in result array
 
-  // First pass: separate sequential workflow steps from parallel ones
-  for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
+  console.log('=== GROUPING PARALLEL STEPS ===');
+  console.log('Total steps:', steps.length);
+  console.log('Steps with isParallel:', steps.filter(s => s.isParallel).length);
 
-    // Throw sequential steps directly into result array
+  for (const step of steps) {
+    if (step.isParallel) {
+      console.log('Parallel step found:', step.name, 'Group:', step.parentGroup, 'Duration:', step.duration);
+    }
+    // Sequential step - add directly
     if (!step.isParallel || !step.parentGroup) {
       result.push(step);
       continue;
     }
 
-    // Group parallel steps by their parent group name
-    const existingGroup = parallelGroups.get(step.parentGroup);
-    if (existingGroup) {
-      existingGroup.push(step);
-    } else {
-      parallelGroups.set(step.parentGroup, [step]);
+    // Parallel step - collect in group
+    if (!groupMap.has(step.parentGroup)) {
+      groupMap.set(step.parentGroup, []);
+
+      // Create placeholder group on first encounter
+      const groupIndex = result.length;
+      groupIndices.set(step.parentGroup, groupIndex);
+      result.push({
+        name: step.parentGroup,
+        steps: [],  // Will be filled below
+        totalDuration: 0,
+        slowestStep: undefined,
+      });
     }
+
+    groupMap.get(step.parentGroup)!.push(step);
   }
 
-  // Second pass: convert parallel groups into group objects and insert at correct position
+  // Second pass: calculate slowest step for each group now that all steps are collected
+  for (const [groupName, groupSteps] of groupMap.entries()) {
+    let maxDuration = 0;
+    let slowest = groupSteps[0];
 
-  // Build a lookup table of original step positions for faster access
-  const stepPositionMap = new Map<string, number>();
-  for (let i = 0; i < steps.length; i++) {
-    stepPositionMap.set(steps[i].id, i);
-  }
-
-  // Process each parallel group
-  const groupEntries = Array.from(parallelGroups.entries());
-  for (let i = 0; i < groupEntries.length; i++) {
-    const [groupName, groupSteps] = groupEntries[i];
-
-    // Find the longest-running step in this parallel group
-    let totalDuration = 0;
-    let slowestStep = groupSteps[0];
-
-    for (let j = 0; j < groupSteps.length; j++) {
-      const stepDuration = groupSteps[j].duration || 0;
-
-      if (stepDuration > totalDuration) {
-        totalDuration = stepDuration;
-        slowestStep = groupSteps[j];
+    for (const s of groupSteps) {
+      const stepDuration = s.runTime || s.duration || 0;  // Use runTime for parallel comparison
+      if (stepDuration > maxDuration) {
+        maxDuration = stepDuration;
+        slowest = s;
       }
     }
 
-    // Create the parallel group payload obj
-    const parallelGroup: ParallelGroup = {
+    // Update the group in the result array
+    const groupIndex = groupIndices.get(groupName)!;
+    result[groupIndex] = {
       name: groupName,
       steps: groupSteps,
-      totalDuration,
-      slowestStep,
+      totalDuration: maxDuration,
+      slowestStep: slowest,
     };
-
-    // Find where the first step of this group appeared in the original array
-    const firstStepOriginalIndex = stepPositionMap.get(groupSteps[0].id) ?? -1;
-
-    // If we can't find the above first step, append group to end
-    if (firstStepOriginalIndex === -1) {
-      result.push(parallelGroup);
-      continue;
-    }
-
-    // Find the correct insertion point to maintain original step order
-    let insertIndex = result.length;
-    for (let k = 0; k < result.length; k++) {
-      const item = result[k];
-
-      // Only check sequential steps (parallel groups don't have 'id')
-      if ('id' in item) {
-        const itemOriginalIndex = stepPositionMap.get(item.id) ?? -1;
-
-        // Insert before the first step that came after this group
-        if (itemOriginalIndex >= firstStepOriginalIndex) {
-          insertIndex = k;
-          break;
-        }
-      }
-    }
-
-    // Insert the parallel group at the calculated position
-    result.splice(insertIndex, 0, parallelGroup);
   }
 
   return result;
@@ -181,13 +154,27 @@ function StepRow({
       isIndented && "pl-6"
     )}>
       {/* Left: Status + Name + Duration */}
-      <div className="flex items-center gap-3 flex-1">
+      <div className="flex items-center gap-24 flex-1">
         <StatusIcon className={cn("w-5 h-5", config.color)} />
-        <span className="font-medium">{step.name}</span>
-        {step.duration !== undefined && (
-          <span className="text-sm text-muted-foreground">
-            {formatDuration(step.duration)}
-          </span>
+        <span className="font-medium min-w-[140px]">{step.name}</span>
+        {(step.queueTime !== undefined || step.runTime !== undefined) && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            {step.queueTime !== undefined && (
+              <span className="flex items-center gap-1">
+                <span className="opacity-60 text-sm">⏱️</span>
+                <span>{formatDuration(step.queueTime)}</span>
+              </span>
+            )}
+            {step.queueTime !== undefined && step.runTime !== undefined && (
+              <span className="opacity-40">|</span>
+            )}
+            {step.runTime !== undefined && (
+              <span className="flex items-center gap-1">
+                <span className="scale-200 text-yellow-500 mr-1.5">⚡</span>
+                <span>{formatDuration(step.runTime)}</span>
+              </span>
+            )}
+          </div>
         )}
         {showSlowestBadge && (
           <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 font-medium">
@@ -242,7 +229,7 @@ function ParallelGroupSection({
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-accent/10 transition-colors"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-12">
           <span className="text-sm font-medium text-muted-foreground">
             {isExpanded ? '▼' : '▶'}
           </span>

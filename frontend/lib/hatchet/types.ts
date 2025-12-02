@@ -42,9 +42,12 @@ export interface WorkflowStep {
   id: string;
   name: string;
   status: StepStatus;
-  duration?: number;
-  startedAt?: string;  // ISO 8601 timestamp
-  finishedAt?: string; // ISO 8601 timestamp
+  duration?: number;       // Total duration (queue + run)
+  queueTime?: number;      // Time spent in queue (ms)
+  runTime?: number;        // Time spent running (ms)
+  createdAt?: string;      // ISO 8601 timestamp - when task was created
+  startedAt?: string;      // ISO 8601 timestamp - when execution started
+  finishedAt?: string;     // ISO 8601 timestamp - when execution finished
   error?: string;
   isParallel?: boolean;
   parentGroup?: string;
