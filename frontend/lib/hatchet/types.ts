@@ -6,21 +6,79 @@ export type WorkflowRunStatus =
   | 'PENDING'    // Queued, waiting to start
   | 'RUNNING'    // Currently executing
   | 'SUCCEEDED'  // Completed successfully
+  | 'COMPLETED'  // Completed (Hatchet uses this)
   | 'FAILED'     // Failed (after all retries)
   | 'CANCELLED'; // User cancelled
 
 
-  // Individual steps within a workflow run
-  export interface WorkflowStep {
+// Refactor for above's 'WorkflowRunStatus'. Individual steps have more granular states than entire workflow runs
+export type StepStatus =
+  | 'QUEUED'
+  | 'PENDING'
+  | 'RUNNING'
+  | 'COMPLETED'
+  | 'SUCCEEDED'
+  | 'FAILED'
+  | 'CANCELLED';
+
+export type LogLevel =
+  | 'INFO'
+  | 'SUCCESS'
+  | 'WARN'
+  | 'ERROR'
+  | 'DEBUG';
+
+export interface ActivityLogEvent {
+  id: string;
+  timestamp: string; // ISO 8601 timestamp
+  level: LogLevel;
+  message: string;
+  stepId?: string;
+  stepName?: string;
+}
+
+// Individual steps within a workflow run
+export interface WorkflowStep {
   id: string;
   name: string;
-  status: WorkflowRunStatus;
+  status: StepStatus;
+  duration?: number;
   startedAt?: string;  // ISO 8601 timestamp
   finishedAt?: string; // ISO 8601 timestamp
-  durationMs?: number;
-  output?: unknown;    // Step output (type varies by step)
-  error?: string;      // Error message if failed
+  error?: string;
+  isParallel?: boolean;
+  parentGroup?: string;
 }
+
+// Used in Activity Log for tasks run in parallel
+export interface ParallelGroup {
+  name: string;
+  steps: WorkflowStep[];
+  totalDuration: number; // Marks the duration of the slowest step
+  slowestStep?: WorkflowStep;
+}
+
+// Internal endpoint response
+export interface RunResponse {
+  // SingleRunHeader component usage
+  runId: string;
+  workflowName: string;
+  status: string;
+  triggeredAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+  duration: number;
+  totalSteps: number;
+  completedSteps: number;
+
+  // SingleRunStepSection component usage
+  steps: WorkflowStep[];
+
+  // Activity logs (for SingleRunActivityLog component)
+  activityLogs: ActivityLogEvent[];
+}
+
+
 
 // Complete workflow run data
 export interface WorkflowRun {
