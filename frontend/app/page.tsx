@@ -20,6 +20,9 @@ const TRIGGER_WORKFLOW_API = '/api/workflows/trigger';
 const DOCUMENT_PROCESSING_PIPELINE = 'document-processing-pipeline';
 const INVOICE_PROCESSING_PIPELINE = 'invoice-processing-pipeline';
 
+// Force dynamic rendering to avoid hydration mismatch with localStorage
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   const [runId, setRunId] = useState<string | null>(null);
   const workflowState = useWorkflowStream(runId);
@@ -90,8 +93,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-background">
-      <PageMain>
+    <PageMain>
         <div className="flex flex-row gap-4">
           <button
             className="mb-4 px-4 py-2 bg-blue-600 text-white rounded cursor-pointer"
@@ -114,6 +116,5 @@ export default function Home() {
 
         </PageGrid>
       </PageMain>
-    </div>
   );
 }

@@ -4,6 +4,11 @@ import { WorkflowState } from '@/app/hooks/useWorkflowStream';
 const STORAGE_KEY = 'whiskey-papa-completed-workflows';
 
 const getInitialWorkflows = (): WorkflowState[] => {
+  // Only access localStorage on the client
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
   try {
     const storedWorkflows = localStorage.getItem(STORAGE_KEY);
     if (storedWorkflows) {
@@ -21,13 +26,12 @@ const getInitialWorkflows = (): WorkflowState[] => {
 }
 
 export function useCompletedWorkflows() {
-  const [completedWorkflows, setCompletedWorkflows] = useState<WorkflowState[]>(getInitialWorkflows);
+  const [completedWorkflows, setCompletedWorkflows] = useState<WorkflowState[]>(() => getInitialWorkflows());
 
   // Poll localStorage every 2 seconds to catch updates
   useEffect(() => {
     const interval = setInterval(() => {
       const updated = getInitialWorkflows();
-
       setCompletedWorkflows(updated);
     }, 2000);
 

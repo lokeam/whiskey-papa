@@ -25,7 +25,7 @@ type MetricCardProps = {
 
 function MetricCard({ icon, title, titleColor, metric, description, legend }: MetricCardProps) {
   return (
-    <div className="flex flex-col gap-4 border border-border rounded-lg p-6 bg-card">
+    <div className="flex flex-col gap-4 rounded-lg p-5 bg-[#B8D9FF]/3">
       {/* Icon */}
       <div className="w-6 h-6">
         {icon}
@@ -33,10 +33,10 @@ function MetricCard({ icon, title, titleColor, metric, description, legend }: Me
 
       {/* Content */}
       <div className="flex flex-col gap-2">
-        <h3 className={cn("text-lg font-medium", titleColor)}>
+        <h3 className={cn("text-xl font-medium", titleColor)}>
           {title}
         </h3>
-        <div className="text-2xl font-bold text-foreground">
+        <div className="text-4xl font-bold text-foreground">
           {metric}
         </div>
         <p className="text-sm text-muted-foreground">
@@ -62,7 +62,7 @@ export default function PlatformHealth() {
     return (
       <section className="col-span-full mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-3xl font-bold">Platform Health</h2>
+          <h2 className="text-3xl font-bold">PLATFORM Health</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
@@ -83,7 +83,7 @@ export default function PlatformHealth() {
     return (
       <section className="col-span-full mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-3xl font-bold">Platform Health</h2>
+          <h2 className="text-3xl font-bold">PLATFORM Health</h2>
         </div>
         <div className="border border-border rounded-lg p-6 bg-card text-center">
           <p className="text-muted-foreground">Failed to load metrics</p>
@@ -106,7 +106,7 @@ export default function PlatformHealth() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-3xl font-bold">Platform Health</h2>
+          <h2 className="text-3xl font-bold">PLATFORM HEALTH</h2>
         </div>
       </div>
 
@@ -118,9 +118,9 @@ export default function PlatformHealth() {
           title="Success Rate"
           titleColor="text-green-500"
           metric={`${successRate.value}%`}
-          description="Workflows completed successfully"
+          description="Workflows completed"
           legend={
-            <div className="flex items-center gap-4 text-xs">
+            <div className="flex flex-wrap items-center gap-3 text-xs">
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <span className="text-muted-foreground">{successRate.succeeded} Success</span>
@@ -148,11 +148,11 @@ export default function PlatformHealth() {
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
                 <span className="text-green-500 font-medium">Fresh</span>
-                <span className="text-muted-foreground">Updated recently</span>
+                <span className="text-muted-foreground">&lt; 12 hrs</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-red-500 font-medium">Stale</span>
-                <span className="text-muted-foreground">Needs update</span>
+                <span className="text-muted-foreground">&gt; 72 hrs</span>
               </div>
             </div>
           }
@@ -164,7 +164,7 @@ export default function PlatformHealth() {
           title="Avg Duration"
           titleColor="text-blue-500"
           metric={avgDuration.formatted}
-          description="Average workflow execution time"
+          description="Average execution time"
         />
 
         {/* Throughput Card */}
@@ -173,7 +173,7 @@ export default function PlatformHealth() {
           title="Throughput"
           titleColor="text-orange-500"
           metric={`${throughput.value}`}
-          description={`Workflows processed ${throughput.unit}`}
+          description={`Processed ${throughput.unit}`}
         />
       </div>
     </section>

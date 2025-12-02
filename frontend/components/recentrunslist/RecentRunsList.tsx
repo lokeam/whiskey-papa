@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 import WorkflowHistoryItem from '@/components/recentrunslist/WorkflowHistoryItem';
@@ -44,12 +47,41 @@ const formatDuration = (startedAt: string, finishedAt?: string, duration?: numbe
 };
 
 export default function RecentRunsList({ runs }: RecentRunsProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by showing empty state until mounted
+  if (!isMounted) {
+    return (
+      <section className="col-span-full">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold">RECENT WORKFLOW RUNS</h2>
+          </div>
+          <div>
+            <Link href="/runs">View all</Link>
+          </div>
+        </div>
+        <EmptyStateCard
+          key="empty-recent-runs"
+          icon="RECENT_RUNS"
+          title="No recent workflow runs"
+          description="Workflow runs will appear here once they are executed."
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="col-span-full">
       {/* Header*/}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold">Recent Workflow Runs</h2>
+          <h2 className="text-2xl font-bold">RECENT WORKFLOW RUNS</h2>
         </div>
         <div>
           <Link href="/runs">View all</Link>

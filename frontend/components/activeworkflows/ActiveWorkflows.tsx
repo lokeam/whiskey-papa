@@ -98,7 +98,7 @@ export default function ActiveWorkflows({ workflows }: ActiveWorkflowsProps) {
       {/* Header*/}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-3xl font-bold">Active Workflows</h2>
+          <h2 className="text-3xl font-bold">ACTIVE WORKFLOWS</h2>
         </div>
         <div>
           <Link href="/runs">View all</Link>
