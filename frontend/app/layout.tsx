@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Mono } from "next/font/google";
 import "./globals.css";
-import { TopNavigation } from "@/components/navigation/TopNavigation";
-import { MetricsProvider } from "./providers/MetricsProvider";
+import { MetricsProvider } from "@/app/providers/MetricsProvider";
+import { BreadcrumbProvider } from "@/app/providers/BreadCrumbContext";
+import { ClientLayout } from "@/app/providers/ClientLayout";
 
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmMono = DM_Mono({
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-dm-mono",
 });
 
 export const metadata: Metadata = {
@@ -27,13 +25,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
-        <main className="h-full bg-background antialiased">
-          <TopNavigation />
-          <MetricsProvider>
-            {children}
-          </MetricsProvider>
-        </main>
+      <body className={`${dmMono.variable} antialiased text-foreground`}>
+        <MetricsProvider>
+          <BreadcrumbProvider>
+            <ClientLayout>
+              {children}
+            </ClientLayout>
+          </BreadcrumbProvider>
+        </MetricsProvider>
       </body>
     </html>
   );
