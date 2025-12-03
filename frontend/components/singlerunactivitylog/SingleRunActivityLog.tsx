@@ -53,7 +53,7 @@ export function SingleRunActivityLog({
   const logContainerRef = useRef<HTMLDivElement>(null);
 
   const filteredEvents = filterEvents(events, filter).filter(event =>
-    searchTerm ? event.message.toLowerCase().includes(searchTerm.toLowerCase()) : true
+    searchTerm ? event.message?.toLowerCase().includes(searchTerm.toLowerCase()) : true
   );
 
   // Auto-scroll to bottom when new events arrive
