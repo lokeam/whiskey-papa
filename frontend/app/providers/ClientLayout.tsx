@@ -1,3 +1,22 @@
+/**
+ * Client Layout Component
+ *
+ * Wraps all pages with TopNavigation and manages dynamic breadcrumb generation.
+ *
+ * Works with BreadCrumbContext:
+ * - Consumes breadcrumb state via useBreadcrumbs() hook
+ * - Updates breadcrumbs automatically on route changes
+ * - Passes breadcrumbs to TopNavigation for display
+ *
+ * Breadcrumb Routes:
+ * - '/' → Home / Dashboard
+ * - '/runs/[id]' → Home / Runs / [runId]
+ *
+ * Usage: Wraps {children} in app/layout.tsx within BreadCrumbProvider
+ *
+ * @param children - Page content to render
+ */
+
 'use client';
 
 import { useEffect } from 'react';

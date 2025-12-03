@@ -1,3 +1,24 @@
+/**
+ * Platform Health Metrics API Route
+ *
+ * GET /api/metrics
+ *
+ * Aggregates real-time platform health metrics from Hatchet Cloud:
+ * - Success Rate: Percentage of completed vs failed workflows (last 100 runs)
+ * - Queue Depth: Current pending/queued/running workflow counts
+ * - Average Duration: Mean execution time for completed workflows
+ * - Throughput: Workflows completed in the last hour
+ *
+ * Data Sources:
+ * - hatchet.admin.runs.list() - Recent workflow run history
+ * - hatchet.metrics.getQueueMetrics() - Current queue state
+ *
+ * Caching: Disabled (force-dynamic) for real-time metrics
+ * Polling: Frontend polls every 30s via useMetrics() hook
+ *
+ * @returns JSON with success rate, queue depth, avg duration, throughput
+ */
+
 import { NextResponse } from 'next/server';
 import { getHatchetClient } from '@/lib/hatchet/client';
 

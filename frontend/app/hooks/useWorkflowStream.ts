@@ -1,3 +1,28 @@
+/**
+ * Workflow Stream Hook
+ *
+ * Manages real-time workflow status updates via Server-Sent Events (SSE).
+ *
+ * Connection Flow:
+ * 1. Opens EventSource to /api/workflows/stream/[runId]
+ * 2. Receives STATUS_UPDATE events every 1s (server polls Hatchet)
+ * 3. Updates React state with latest workflow status
+ * 4. On completion (COMPLETED/FAILED/CANCELLED):
+ *    - Saves to localStorage (max 20 runs)
+ *    - Closes SSE connection
+ *
+ * Event Types:
+ * - STATUS_UPDATE: Workflow status changed (QUEUED → RUNNING → COMPLETED)
+ * - ERROR: Connection or parsing error
+ *
+ * Auto-Reconnection: Browser EventSource API handles reconnection automatically
+ *
+ * Used by: Dashboard page for live workflow monitoring
+ *
+ * @param runId - Workflow run ID to stream, or null to skip connection
+ * @returns WorkflowState with current status, timestamps, and connection state
+ */
+
 import { useEffect, useState } from 'react';
 
 interface WorkflowEvent {

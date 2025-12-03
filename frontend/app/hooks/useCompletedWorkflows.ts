@@ -1,3 +1,21 @@
+/**
+ * Completed Workflows Hook
+ *
+ * Manages persistent workflow history via localStorage.
+ *
+ * Storage Key: 'whiskey-papa-completed-workflows'
+ * Max History: 20 runs (managed by save logic in page.tsx)
+ *
+ * Update Mechanisms:
+ * - Polling: Checks localStorage every 2s for updates
+ * - Event Listener: Responds to 'workflowCompleted' custom events
+ * - SSR Safe: Returns empty array during server-side rendering
+ *
+ * Used by: RecentRunsList component on dashboard
+ *
+ * @returns Array of completed WorkflowState objects from localStorage
+ */
+
 import { useEffect, useState } from 'react';
 import { WorkflowState } from '@/app/hooks/useWorkflowStream';
 

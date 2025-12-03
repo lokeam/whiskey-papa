@@ -1,3 +1,22 @@
+/**
+ * Elapsed Time Hook
+ *
+ * Provides live timer for active workflow runs, updating every second.
+ *
+ * Edge Case Handling:
+ * - Invalid timestamps ('0001-01-01T00:00:00Z'): Uses component mount time as fallback
+ * - Unreasonable timestamps (>1 year old or future): Uses fallback to prevent display errors
+ * - Inactive workflows: Timer pauses, returns last calculated value
+ *
+ * Update Frequency: 1 second interval when isActive=true
+ *
+ * Used by: ActiveWorkflows component for live duration display
+ *
+ * @param startedAt - ISO timestamp when workflow started
+ * @param isActive - Whether workflow is currently running (QUEUED/RUNNING)
+ * @returns Elapsed time in milliseconds
+ */
+
 import { useEffect, useState } from "react";
 
 export function useElapsedTime(startedAt: string, isActive: boolean) {
