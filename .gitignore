@@ -3,10 +3,12 @@
 #==========================================
 # Environment & Configuration
 #==========================================
-.env
-.env.*
+# Ignore all .env files
+.env*
+
+# Allow example files for developer setup
 !.env.example
-!.env.*.example
+!.env.example.local
 
 #==========================================
 # Golang Tools
